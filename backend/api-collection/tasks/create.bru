@@ -1,0 +1,29 @@
+meta {
+  name: Create Task
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/projects/{{project_id}}/tasks
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": "New Task",
+    "description": "Created via Bruno",
+    "priority": "medium"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("task_id", res.body.data.id);
+  }
+}

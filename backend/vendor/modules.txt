@@ -1,0 +1,45 @@
+# github.com/go-chi/chi/v5 v5.2.5
+## explicit; go 1.22
+github.com/go-chi/chi/v5
+github.com/go-chi/chi/v5/middleware
+# github.com/golang-jwt/jwt/v5 v5.3.1
+## explicit; go 1.21
+github.com/golang-jwt/jwt/v5
+# github.com/golang-migrate/migrate/v4 v4.19.1
+## explicit; go 1.24.0
+github.com/golang-migrate/migrate/v4
+github.com/golang-migrate/migrate/v4/database
+github.com/golang-migrate/migrate/v4/database/multistmt
+github.com/golang-migrate/migrate/v4/database/postgres
+github.com/golang-migrate/migrate/v4/internal/url
+github.com/golang-migrate/migrate/v4/source
+github.com/golang-migrate/migrate/v4/source/file
+github.com/golang-migrate/migrate/v4/source/iofs
+# github.com/google/uuid v1.6.0
+## explicit
+github.com/google/uuid
+# github.com/jmoiron/sqlx v1.4.0
+## explicit; go 1.10
+github.com/jmoiron/sqlx
+github.com/jmoiron/sqlx/reflectx
+# github.com/lib/pq v1.12.3
+## explicit; go 1.21
+github.com/lib/pq
+github.com/lib/pq/internal/pgpass
+github.com/lib/pq/internal/pgservice
+github.com/lib/pq/internal/pqsql
+github.com/lib/pq/internal/pqtime
+github.com/lib/pq/internal/pqutil
+github.com/lib/pq/internal/proto
+github.com/lib/pq/oid
+github.com/lib/pq/pqerror
+github.com/lib/pq/scram
+# golang.org/x/crypto v0.45.0 => /Users/ajay.patel/Library/CloudStorage/OneDrive-UKG/Desktop/TaskFlow/backend/vendor_local/golang-crypto
+## explicit; go 1.25.0
+golang.org/x/crypto/bcrypt
+golang.org/x/crypto/blowfish
+# golang.org/x/crypto => /Users/ajay.patel/Library/CloudStorage/OneDrive-UKG/Desktop/TaskFlow/backend/vendor_local/golang-crypto
+# golang.org/x/sys => /Users/ajay.patel/Library/CloudStorage/OneDrive-UKG/Desktop/TaskFlow/backend/vendor_local/golang-sys
+# golang.org/x/net => /Users/ajay.patel/Library/CloudStorage/OneDrive-UKG/Desktop/TaskFlow/backend/vendor_local/golang-net
+# golang.org/x/term => /Users/ajay.patel/Library/CloudStorage/OneDrive-UKG/Desktop/TaskFlow/backend/vendor_local/golang-term
+# golang.org/x/text => /Users/ajay.patel/Library/CloudStorage/OneDrive-UKG/Desktop/TaskFlow/backend/vendor_local/golang-text

@@ -1,0 +1,27 @@
+# Environment — never commit real secrets
+.env
+
+# Compiled binaries
+backend/api
+backend/*.exe
+
+# Local vendor workaround (corporate network dev only — Docker uses vendor/)
+backend/vendor_local/
+
+# Claude Code internal files
+.claude/
+
+# AI planning docs
+docs/
+
+# Assignment brief
+assignment.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
