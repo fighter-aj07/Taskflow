@@ -21,22 +21,58 @@ A task management REST API built with Go. TaskFlow provides project and task man
 
 ## Architecture
 
-TaskFlow uses a clean layered architecture:
+### High-Level Deployment
 
+```mermaid
+graph TD
+Client["HTTP Client<br/>(Bruno / curl)"]
+
+subgraph Docker Compose
+subgraph api["API Container (golang:1.25-alpine)"]
+Router["Chi Router"]
+AuthMW["JWT Auth Middleware"]
+Handlers["Handlers<br/>auth · project · task"]
+Services["Services<br/>auth · project · task"]
+Repos["Repositories<br/>user · project · task"]
+end
+
+subgraph db["DB Container (postgres:16-alpine)"]
+PG["PostgreSQL 16<br/>migrations auto-applied<br/>seed data on first boot"]
+end
+end
+
+Client -->|"HTTP :8080"| Router
+Router --> AuthMW
+AuthMW --> Handlers
+Handlers --> Services
+Services --> Repos
+Repos -->|"sqlx / lib/pq"| PG
 ```
-HTTP Request
-    |
-    v
-Handler       (internal/handler/)   - decode/validate request, encode response
-    |
-    v
-Service       (internal/service/)   - business logic, authorization checks
-    |
-    v
-Repository    (internal/repository/) - SQL queries via sqlx
-    |
-    v
-PostgreSQL
+
+### Request Flow (per layer)
+
+```mermaid
+sequenceDiagram
+participant C as Client
+participant R as Chi Router
+participant M as Auth Middleware
+participant H as Handler
+participant S as Service
+participant DB as Repository + PG
+
+C->>R: POST /projects/:id/tasks
+R->>M: validate JWT
+M-->>R: 401 if invalid
+M->>H: inject user_id into context
+H->>H: decode + validate body
+H-->>C: 400 if validation fails
+H->>S: CreateTask(ctx, req, userID)
+S->>DB: check project ownership
+DB-->>S: 403 if not member
+S->>DB: INSERT task
+DB-->>S: task row
+S-->>H: Task model
+H-->>C: 201 + JSON body
 ```
 
 ### Design Decisions
@@ -54,8 +90,8 @@ PostgreSQL
 ## Quick Start
 
 ```bash
-git clone https://github.com/fighter-aj07/Taskflow.git
-cd Taskflow
+git clone https://github.com/your-name/taskflow.git
+cd taskflow
 cp .env.example .env
 docker compose up --build
 ```
@@ -114,10 +150,10 @@ Content-Type: application/json
 ```json
 // Response 200
 {
-  "data": [
-    { "id": "uuid", "name": "Website Redesign", "description": "Q2 project", "owner_id": "uuid", "created_at": "..." }
-  ],
-  "pagination": { "page": 1, "limit": 20, "total": 1, "total_pages": 1 }
+"data": [
+{ "id": "uuid", "name": "Website Redesign", "description": "Q2 project", "owner_id": "uuid", "created_at": "..." }
+],
+"pagination": { "page": 1, "limit": 20, "total": 1, "total_pages": 1 }
 }
 ```
 
@@ -138,12 +174,12 @@ Returns the project together with all its tasks.
 ```json
 // Response 200
 {
-  "data": {
-    "id": "uuid", "name": "Website Redesign", "description": "Q2 project", "owner_id": "uuid", "created_at": "...",
-    "tasks": [
-      { "id": "uuid", "title": "Design homepage", "status": "todo", "priority": "high", "project_id": "uuid", "assignee_id": "uuid", "due_date": "2026-04-20", "created_at": "...", "updated_at": "..." }
-    ]
-  }
+"data": {
+"id": "uuid", "name": "Website Redesign", "description": "Q2 project", "owner_id": "uuid", "created_at": "...",
+"tasks": [
+{ "id": "uuid", "title": "Design homepage", "status": "todo", "priority": "high", "project_id": "uuid", "assignee_id": "uuid", "due_date": "2026-04-20", "created_at": "...", "updated_at": "..." }
+]
+}
 }
 ```
 
@@ -170,7 +206,13 @@ Owner only. Returns `204 No Content`.
 ```json
 // Response 200
 {
-  "data": { "total": 3, "todo": 1, "in_progress": 1, "done": 1 }
+"data": {
+"by_status": { "todo": 1, "in_progress": 1, "done": 1 },
+"by_assignee": [
+{ "user_id": "uuid", "name": "Jane Doe", "count": 2 },
+{ "user_id": null, "name": "Unassigned", "count": 1 }
+]
+}
 }
 ```
 
@@ -181,10 +223,10 @@ Supports query params: `?status=todo|in_progress|done`, `?assignee_id=uuid`, `?p
 ```json
 // Response 200
 {
-  "data": [
-    { "id": "uuid", "title": "Design homepage", "status": "todo", "priority": "high", "project_id": "uuid", "assignee_id": "uuid", "due_date": "2026-04-20", "created_at": "...", "updated_at": "..." }
-  ],
-  "pagination": { "page": 1, "limit": 20, "total": 1, "total_pages": 1 }
+"data": [
+{ "id": "uuid", "title": "Design homepage", "status": "todo", "priority": "high", "project_id": "uuid", "assignee_id": "uuid", "due_date": "2026-04-20", "created_at": "...", "updated_at": "..." }
+],
+"pagination": { "page": 1, "limit": 20, "total": 1, "total_pages": 1 }
 }
 ```
 
