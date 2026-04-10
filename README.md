@@ -75,23 +75,11 @@ S-->>H: Task model
 H-->>C: 201 + JSON body
 ```
 
-### Design Decisions
-
-**Chi over Gin**: Chi is stdlib-compatible (`net/http` handler signatures) with no custom context types. Middleware composes naturally. The router is lightweight with zero dependencies beyond the standard library.
-
-**sqlx over GORM**: Explicit SQL keeps queries readable and debuggable. No hidden N+1 queries or magic. sqlx adds just enough convenience (struct scanning, named queries) without obscuring what hits the database.
-
-**slog for structured logging**: Available in the stdlib since Go 1.21. No third-party logging dependency. JSON output by default makes logs easy to parse in production environments.
-
-**Layered architecture**: Each layer has a single responsibility. Handlers do not contain business logic. Services do not know about HTTP. Repositories do not know about authorization. This makes each layer independently testable and replaceable.
-
----
-
 ## Quick Start
 
 ```bash
-git clone https://github.com/your-name/taskflow.git
-cd taskflow
+git clone https://github.com/fighter-aj07/Taskflow.git
+cd Taskflow
 cp .env.example .env
 docker compose up --build
 ```
