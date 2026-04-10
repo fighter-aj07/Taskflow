@@ -1,6 +1,30 @@
-# TaskFlow
+# 1. Add all files
+git add .
+
+# 2. Create initial commit
+git commit -m "Initial commit: TaskFlow API"
+
+# 3. Add your GitHub remote (replace YOUR-USERNAME with fighter-aj07)
+git remote add origin https://github.com/fighter-aj07/TaskFlow.git
+
+# 4. Push to GitHub
+git branch -M main
+git push -u origin main# TaskFlow
 
 A task management REST API built with Go. TaskFlow provides project and task management with JWT-based authentication, role-based access control (owner/creator enforcement), and paginated list endpoints.
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/fighter-aj07/Taskflow.git
+cd Taskflow
+cp .env.example .env
+docker compose up --build
+```
+
+The API will be available at http://localhost:8080
 
 ---
 
@@ -75,7 +99,9 @@ sequenceDiagram
     H-->>C: 201 + JSON body
 ```
 
-### Design Decisions
+---
+
+## Design Decisions
 
 **Chi over Gin**: Chi is stdlib-compatible (`net/http` handler signatures) with no custom context types. Middleware composes naturally. The router is lightweight with zero dependencies beyond the standard library.
 
@@ -84,19 +110,6 @@ sequenceDiagram
 **slog for structured logging**: Available in the stdlib since Go 1.21. No third-party logging dependency. JSON output by default makes logs easy to parse in production environments.
 
 **Layered architecture**: Each layer has a single responsibility. Handlers do not contain business logic. Services do not know about HTTP. Repositories do not know about authorization. This makes each layer independently testable and replaceable.
-
----
-
-## Quick Start
-
-```bash
-git clone https://github.com/your-name/taskflow.git
-cd taskflow
-cp .env.example .env
-docker compose up --build
-```
-
-The API will be available at http://localhost:8080
 
 Migrations run automatically on container start. The seed user (see Test Credentials below) is created on first boot.
 
