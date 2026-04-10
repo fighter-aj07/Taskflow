@@ -1,30 +1,6 @@
-# 1. Add all files
-git add .
-
-# 2. Create initial commit
-git commit -m "Initial commit: TaskFlow API"
-
-# 3. Add your GitHub remote (replace YOUR-USERNAME with fighter-aj07)
-git remote add origin https://github.com/fighter-aj07/TaskFlow.git
-
-# 4. Push to GitHub
-git branch -M main
-git push -u origin main# TaskFlow
+# TaskFlow
 
 A task management REST API built with Go. TaskFlow provides project and task management with JWT-based authentication, role-based access control (owner/creator enforcement), and paginated list endpoints.
-
----
-
-## Quick Start
-
-```bash
-git clone https://github.com/fighter-aj07/Taskflow.git
-cd Taskflow
-cp .env.example .env
-docker compose up --build
-```
-
-The API will be available at http://localhost:8080
 
 ---
 
@@ -45,63 +21,25 @@ The API will be available at http://localhost:8080
 
 ## Architecture
 
-### High-Level Deployment
+TaskFlow uses a clean layered architecture:
 
-```mermaid
-graph TD
-    Client["HTTP Client<br/>(Bruno / curl)"]
-
-    subgraph Docker Compose
-        subgraph api["API Container (golang:1.25-alpine)"]
-            Router["Chi Router"]
-            AuthMW["JWT Auth Middleware"]
-            Handlers["Handlers<br/>auth · project · task"]
-            Services["Services<br/>auth · project · task"]
-            Repos["Repositories<br/>user · project · task"]
-        end
-
-        subgraph db["DB Container (postgres:16-alpine)"]
-            PG["PostgreSQL 16<br/>migrations auto-applied<br/>seed data on first boot"]
-        end
-    end
-
-    Client -->|"HTTP :8080"| Router
-    Router --> AuthMW
-    AuthMW --> Handlers
-    Handlers --> Services
-    Services --> Repos
-    Repos -->|"sqlx / lib/pq"| PG
+```
+HTTP Request
+    |
+    v
+Handler       (internal/handler/)   - decode/validate request, encode response
+    |
+    v
+Service       (internal/service/)   - business logic, authorization checks
+    |
+    v
+Repository    (internal/repository/) - SQL queries via sqlx
+    |
+    v
+PostgreSQL
 ```
 
-### Request Flow (per layer)
-
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant R as Chi Router
-    participant M as Auth Middleware
-    participant H as Handler
-    participant S as Service
-    participant DB as Repository + PG
-
-    C->>R: POST /projects/:id/tasks
-    R->>M: validate JWT
-    M-->>R: 401 if invalid
-    M->>H: inject user_id into context
-    H->>H: decode + validate body
-    H-->>C: 400 if validation fails
-    H->>S: CreateTask(ctx, req, userID)
-    S->>DB: check project ownership
-    DB-->>S: 403 if not member
-    S->>DB: INSERT task
-    DB-->>S: task row
-    S-->>H: Task model
-    H-->>C: 201 + JSON body
-```
-
----
-
-## Design Decisions
+### Design Decisions
 
 **Chi over Gin**: Chi is stdlib-compatible (`net/http` handler signatures) with no custom context types. Middleware composes naturally. The router is lightweight with zero dependencies beyond the standard library.
 
@@ -110,6 +48,19 @@ sequenceDiagram
 **slog for structured logging**: Available in the stdlib since Go 1.21. No third-party logging dependency. JSON output by default makes logs easy to parse in production environments.
 
 **Layered architecture**: Each layer has a single responsibility. Handlers do not contain business logic. Services do not know about HTTP. Repositories do not know about authorization. This makes each layer independently testable and replaceable.
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/fighter-aj07/Taskflow.git
+cd Taskflow
+cp .env.example .env
+docker compose up --build
+```
+
+The API will be available at http://localhost:8080
 
 Migrations run automatically on container start. The seed user (see Test Credentials below) is created on first boot.
 
@@ -219,13 +170,7 @@ Owner only. Returns `204 No Content`.
 ```json
 // Response 200
 {
-  "data": {
-    "by_status": { "todo": 1, "in_progress": 1, "done": 1 },
-    "by_assignee": [
-      { "user_id": "uuid", "name": "Jane Doe", "count": 2 },
-      { "user_id": null, "name": "Unassigned", "count": 1 }
-    ]
-  }
+  "data": { "total": 3, "todo": 1, "in_progress": 1, "done": 1 }
 }
 ```
 
